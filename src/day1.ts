@@ -5,32 +5,37 @@ export default function day1(input: string[], supportWords = false) {
     if (supportWords) {
         const newInput = [];
 
-        for(let line of input) {
+        for (let line of input) {
             let cursor = 0;
 
+            const parsedParts = [];
+            const lineSplitOnDigits = line.split(/(\d+)/); //?
 
-            while (cursor <= line.length) {
-                const slice = line.slice(0, cursor); //?
-                
-                for(let word of theWordsOneToNine) {
-                    if (slice.includes(word)) {
-                        const number = theWordsOneToNine.indexOf(word) + 1 + '';
-                        line = line.replace(word, number);
-                        cursor = -1;
+            for (let linePart of lineSplitOnDigits) {
+                if (parseInt(linePart) > -1) {
+                    parsedParts.push(linePart);
+                    continue;
+                }
+
+                let orderedNumbers = [];
+
+                for (const number of theWordsOneToNine) {
+                    const discoveredIndex = linePart.indexOf(number); //?
+                    if (discoveredIndex !== -1) {
+                        const value = theWordsOneToNine.indexOf(number) + 1 + '';
+                        orderedNumbers[discoveredIndex] = value;
                     }
                 }
 
-                if (cursor === -1) {
-                    cursor = 0;
-                } else {
-                    cursor++;
-                }
+                orderedNumbers = orderedNumbers.filter(x => x !== undefined); //?
+                parsedParts.push(...orderedNumbers);
             }
 
-            newInput.push(line);        
+            const newLine = parsedParts.join('');
+            newInput.push(newLine);
         }
 
-        input = newInput; //?
+        input = newInput;
     }
 
     const regex = /\D/g;
