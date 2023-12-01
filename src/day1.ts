@@ -1,53 +1,54 @@
 export default function day1(input: string[], supportWords = false) {
-
-    const valueMap = new Map<string, number>();
-    valueMap.set('1', 1);
-    valueMap.set('2', 2);
-    valueMap.set('3', 3);
-    valueMap.set('4', 4);
-    valueMap.set('5', 5);
-    valueMap.set('6', 6);
-    valueMap.set('7', 7);
-    valueMap.set('8', 8);
-    valueMap.set('9', 9);
+    const digits = new Map<string, number>();
+    digits.set('1', 1);
+    digits.set('2', 2);
+    digits.set('3', 3);
+    digits.set('4', 4);
+    digits.set('5', 5);
+    digits.set('6', 6);
+    digits.set('7', 7);
+    digits.set('8', 8);
+    digits.set('9', 9);
 
     if (supportWords) {
-        valueMap.set('one', 1);
-        valueMap.set('two', 2);
-        valueMap.set('three', 3);
-        valueMap.set('four', 4);
-        valueMap.set('five', 5);
-        valueMap.set('six', 6);
-        valueMap.set('seven', 7);
-        valueMap.set('eight', 8);
-        valueMap.set('nine', 9);
+        digits.set('one', 1);
+        digits.set('two', 2);
+        digits.set('three', 3);
+        digits.set('four', 4);
+        digits.set('five', 5);
+        digits.set('six', 6);
+        digits.set('seven', 7);
+        digits.set('eight', 8);
+        digits.set('nine', 9);
     }
 
     let sum = 0;
-
     for (const line of input) {
-
-        let found = [];
-        let foundLast = [];
-
-        for (var [value, asNumber] of valueMap) {
-            const firstOccurance = line.indexOf(value);
-            if (firstOccurance !== -1) {
-                found[firstOccurance] = asNumber;
-            }
-
-            const lastOccurance = line.lastIndexOf(value);
-            if (lastOccurance !== -1) {
-                foundLast[lastOccurance] = asNumber;
-            }
-        }
-
-        found = found.filter(x => x !== undefined);
-        foundLast = foundLast.filter(x => x !== undefined);
-        const number = found[0] + "" + foundLast[foundLast.length - 1];
-
-        sum += parseInt(number);
+        sum += toNumber(line, digits);
     }
 
     return sum;
+}
+
+function toNumber(line: string, digits: Map<string, number>) {
+    let startDigits: Number[] = [];
+    let endDigits: Number[] = [];
+
+    for (var [value, asNumber] of digits) {
+        const firstOccurance = line.indexOf(value);
+        if (firstOccurance !== -1) {
+            startDigits[firstOccurance] = asNumber;
+        }
+
+        const lastOccurance = line.lastIndexOf(value);
+        if (lastOccurance !== -1) {
+            endDigits[lastOccurance] = asNumber;
+        }
+    }
+
+    startDigits = startDigits.filter(Number);
+    endDigits = endDigits.filter(Number);
+
+    const twoDigitCode = startDigits[0] + "" + endDigits[endDigits.length - 1];
+    return parseInt(twoDigitCode);
 }
