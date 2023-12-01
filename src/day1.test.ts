@@ -4,17 +4,17 @@ import * as fs from "fs";
 
 describe('day1', () => {
 
-    // it('part 1 example', () => {
-    //     var input = [
-    //         "1abc2",
-    //         "pqr3stu8vwx",
-    //         "a1b2c3d4e5f",
-    //         "treb7uchet"
-    //     ];
+    it('part 1 example', () => {
+        var input = [
+            "1abc2",
+            "pqr3stu8vwx",
+            "a1b2c3d4e5f",
+            "treb7uchet"
+        ];
 
-    //     const result = day1(input);
-    //     expect(result).toBe(142)
-    // });
+        const result = day1(input);
+        expect(result).toBe(142)
+    });
 
     // it('part 1 solution', () => {
     //     const text = fs.readFileSync('./src/day1.input.txt', 'utf-8');
@@ -51,13 +51,25 @@ describe('day1', () => {
         expect(result).toBe(79);
     });
 
+    it('part 2 edge cases 3', () => {
+        var input = ["treb7uchet"];
+        const result = day1(input, true);
+        expect(result).toBe(77);
+    });
+
+    it('part 2 edge cases 3', () => {
+        var input = ["9xlv5gqgvpjvrhbbcrnmq2pt5"];
+        const result = day1(input, false);
+        expect(result).toBe(95);
+    });
+
     // it('part 2 solution', () => {
     //     const text = fs.readFileSync('./src/day1.input.txt', 'utf-8');
     //     const input = text.split('\n');            
 
     //     const result = day1(input, true);
 
-    //     expect(result).toBe(-1);
+    //     expect(result).toBe(53515);
     // });
 
 });
