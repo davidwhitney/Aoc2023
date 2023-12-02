@@ -1,64 +1,50 @@
 fun day2(lines: List<String>, red: Int, green: Int, blue: Int): Int {
-
-    var viableGames = lines
+    return lines
         .stream()
-        .map{ toGameRequirements(it) }
-        .filter{ it.viableGame(red, green, blue)}
-        .toList();
-
-    println(viableGames);
-
-    var sumOfViableIds = viableGames
-        .stream()
+        .map { GameReq.fromLine(it) }
+        .filter { it.isViable(red, green, blue) }
         .mapToInt { it.gameId }
         .sum();
-
-    return sumOfViableIds;
 }
 
-fun toGameRequirements(line: String): GameReq {
-    var parts = line.split(": ", "; ");
-    var rounds = parts.slice(1..< parts.size);
-    var gameId = parts[0].replace("Game ", "").toInt();
+class GameReq(val gameId: Int, private val requirements: HashMap<String, Int>) {
+    fun isViable(red: Int, green: Int, blue: Int): Boolean {
+        return (requirements["red"]!! <= red
+                && requirements["green"]!! <= green
+                && requirements["blue"]!! <= blue);
+    }
 
-    var highestRankMap = hashMapOf<String, Int>();
-    highestRankMap["red"] = 0;
-    highestRankMap["blue"] = 0;
-    highestRankMap["green"] = 0;
+    override fun toString(): String {
+        return this.gameId.toString() + " " + this.requirements.toString();
+    }
 
-    for (set in rounds) {
-        var counts = set.split(", ");
+    companion object {
+        fun fromLine(line: String): GameReq {
+            val parts = line.split(": ", "; ");
+            val rounds = parts.slice(1..<parts.size);
+            val gameId = parts[0].replace("Game ", "").toInt();
 
-        for(item in counts) {
-            var parts = item.split(" ");
-            var type = parts[1];
-            var count = parts[0].toInt();
+            val highestRankMap = hashMapOf<String, Int>();
+            highestRankMap["red"] = 0;
+            highestRankMap["blue"] = 0;
+            highestRankMap["green"] = 0;
 
-            if (!highestRankMap.containsKey(type)) {
-                highestRankMap[type] = count;
-            } else {
-                var previous = highestRankMap[type]!!;
-                if (count > previous) {
-                    highestRankMap[type] = count;
+            for (set in rounds) {
+                val counts = set.split(", ");
+
+                for (item in counts) {
+                    val itemParts = item.split(" ");
+                    val type = itemParts[1];
+                    val count = itemParts[0].toInt();
+
+                    val previous = highestRankMap[type]!!;
+                    if (count > previous) {
+                        highestRankMap[type] = count;
+                    }
                 }
             }
+
+            return GameReq(gameId, highestRankMap);
         }
-    }
-
-    return GameReq(gameId, highestRankMap);
-}
-
-class GameReq(val gameId: Int, val requirements: HashMap<String, Int>) {
-    public fun viableGame(red: Int, green: Int, blue: Int): Boolean {
-        if (requirements["red"]!! <= red
-            && requirements["green"]!! <= green
-            && requirements["blue"]!! <= blue) {
-            return true;
-        }
-        return false;
-    }
-
-    public override fun toString(): String {
-        return this.gameId.toString() + " " + this.requirements.toString();
     }
 }
