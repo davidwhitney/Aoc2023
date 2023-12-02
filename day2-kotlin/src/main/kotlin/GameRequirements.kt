@@ -1,13 +1,11 @@
-fun day2(lines: List<String>, red: Int, green: Int, blue: Int): Int {
-    return lines
-        .stream()
-        .map { GameReq.fromLine(it) }
-        .filter { it.isViable(red, green, blue) }
-        .mapToInt { it.gameId }
-        .sum();
-}
+import java.util.stream.Stream
 
-class GameReq(val gameId: Int, private val requirements: HashMap<String, Int>) {
+class GameRequirements(val gameId: Int, private val requirements: HashMap<String, Int>) {
+    val power: Int
+        get() {
+            return requirements["red"]!! * requirements["green"]!! * requirements["blue"]!!;
+        }
+
     fun isViable(red: Int, green: Int, blue: Int): Boolean {
         return (requirements["red"]!! <= red
                 && requirements["green"]!! <= green
@@ -15,11 +13,11 @@ class GameReq(val gameId: Int, private val requirements: HashMap<String, Int>) {
     }
 
     override fun toString(): String {
-        return this.gameId.toString() + " " + this.requirements.toString();
+        return this.gameId.toString() + " " + this.requirements.toString() + " Power: " + power.toString();
     }
 
     companion object {
-        fun fromLine(line: String): GameReq {
+        fun fromLine(line: String): GameRequirements {
             val parts = line.split(": ", "; ");
             val rounds = parts.slice(1..<parts.size);
             val gameId = parts[0].replace("Game ", "").toInt();
@@ -44,7 +42,18 @@ class GameReq(val gameId: Int, private val requirements: HashMap<String, Int>) {
                 }
             }
 
-            return GameReq(gameId, highestRankMap);
+            return GameRequirements(gameId, highestRankMap);
         }
     }
+}
+
+fun List<String>.toGameRequirementsStream(): Stream<GameRequirements> {
+    return this.stream().map{ GameRequirements.fromLine(it) };
+}
+
+fun Stream<GameRequirements>.viableGames(red: Int, green: Int, blue: Int): Stream<GameRequirements> {
+    return this.filter{ it.isViable(red, green, blue)};
+}
+fun Stream<GameRequirements>.sumOfIds(): Int {
+    return this.mapToInt { it.gameId }.sum();
 }

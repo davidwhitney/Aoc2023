@@ -2,7 +2,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.io.File
 
-class AClassWithOneJUnitTest {
+class Day2Tests {
     @Test
     fun example1() {
         var lines = mutableListOf<String>();
@@ -12,7 +12,10 @@ class AClassWithOneJUnitTest {
         lines.add("Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red");
         lines.add("Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green");
 
-        var result = day2(lines, 12, 13, 14);
+        val result = lines
+            .toGameRequirementsStream()
+            .viableGames(12, 13, 14)
+            .sumOfIds();
 
         assertTrue(result == 8);
     }
@@ -22,9 +25,24 @@ class AClassWithOneJUnitTest {
         var lines = mutableListOf<String>();
         File("C:\\dev\\davidwhitney\\Aoc2023\\day2-kotlin\\src\\test\\resources\\input.txt").forEachLine { lines.add(it); }
 
-        var result = day2(lines, 12, 13, 14);
-        println(result);
+        val result = lines
+            .toGameRequirementsStream()
+            .viableGames(12, 13, 14)
+            .sumOfIds();
 
         assertTrue(result == 2164);
+    }
+
+    @Test
+    fun test2() {
+        var lines = mutableListOf<String>();
+        File("C:\\dev\\davidwhitney\\Aoc2023\\day2-kotlin\\src\\test\\resources\\input.txt").forEachLine { lines.add(it); }
+
+        val sumOfPowers = lines
+            .toGameRequirementsStream()
+            .mapToInt{ it.power }
+            .sum();
+
+        assertTrue(sumOfPowers == 69929);
     }
 }
