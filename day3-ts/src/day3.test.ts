@@ -39,36 +39,27 @@ describe('day 3', () => {
 
 function solvePart2(input: string) {
     const grid = input.split('\n').map(x => x.split(''));
+
     const allElements = getTokens(grid);
+    const numberElements = allElements.filter(x => x instanceof NumberElement);
+    const symbolElements = allElements.filter(x => x instanceof SymbolElement);
+    const potentialGears = symbolElements.filter(x => x.value === '*');
 
-    const gears = new Map<Value, Array<Value>>();
     let sum = 0;
+    const gears = new Map<Value, Array<Value>>();
 
-    for (const element of allElements) {
-        if (element instanceof NumberElement) {
-            continue;
-        }
-
-        if (element.value !== '*') {
-            continue;
-        }
-
-        const onlyNumbers = allElements.filter(x => x instanceof NumberElement);
-
+    for (const element of potentialGears) {
         const adjacent = new Array<Value>();
 
-        for (const other of onlyNumbers) {
+        for (const other of numberElements) {
             if (element !== other && element.isAdjacent(other)) {
                 adjacent.push(other);
             }
         }
 
         if (adjacent.length === 2) {
-            // it's a gear!
             gears.set(element, adjacent);
-
-            const gearRatio = parseInt(adjacent[0].value) * parseInt(adjacent[1].value);
-            sum += gearRatio;
+            sum += parseInt(adjacent[0].value) * parseInt(adjacent[1].value);
         }
 
     }
@@ -78,35 +69,22 @@ function solvePart2(input: string) {
 
 function solve(input: string) {
     const grid = input.split('\n').map(x => x.split(''));
+
     const allElements = getTokens(grid);
+    const numberElements = allElements.filter(x => x instanceof NumberElement);
+    const symbolElements = allElements.filter(x => x instanceof SymbolElement);
 
-    let sumOfIdsAdjacentToSymbols = 0;
+    let sum = 0;
 
-    // calculate which tokens are adjactent to each other
-    const adjacentElements = new Map<Value, Array<Value>>();
-    for (const element of allElements) {
-        if (element instanceof SymbolElement) {
-            continue;
-        }
-
-        const onlySymbols = allElements.filter(x => x instanceof SymbolElement);
-
-        const adjacent = new Array<Value>();
-
-        for (const other of onlySymbols) {
-            if (element !== other && element.isAdjacent(other)) {
-                adjacent.push(other);
-
-                if (other instanceof SymbolElement) {
-                    sumOfIdsAdjacentToSymbols += parseInt(element.value);
-                }
+    for (const element of numberElements) {
+        for (const other of symbolElements) {
+            if (element !== other && element.isAdjacent(other) && other instanceof SymbolElement) {
+                sum += parseInt(element.value);
             }
         }
-
-        adjacentElements.set(element, adjacent);
     }
 
-    return sumOfIdsAdjacentToSymbols;
+    return sum;
 }
 
 function getTokens(grid: string[][]) {
@@ -155,7 +133,6 @@ function getTokens(grid: string[][]) {
     return detectedElements;
 }
 
-
 class Value {
     public x: number;
     public y: number;
@@ -174,46 +151,40 @@ class Value {
         this.x2 = x + value.length - 1;
         this.y2 = y;
 
-        this._neighbours = this.calculateNeighbourElementPositions();
+        this.calculateNeighbourElementPositions();
     }
 
     public add(value: string) {
         this.value += value;
         this.x2 = this.x + this.value.length - 1;
-        this._neighbours = this.calculateNeighbourElementPositions();
+        this.calculateNeighbourElementPositions();
     }
 
     public calculateNeighbourElementPositions() {
-        // return the positions of the elements that are adjacent to this one
         const positions = [];
 
-        // above
         for (let x = this.x; x <= this.x2; x++) {
             positions.push([x, this.y - 1]);
         }
 
-        // below
         for (let x = this.x; x <= this.x2; x++) {
             positions.push([x, this.y2 + 1]);
         }
 
-        // left
         for (let y = this.y; y <= this.y2; y++) {
             positions.push([this.x - 1, y]);
         }
 
-        // right
         for (let y = this.y; y <= this.y2; y++) {
             positions.push([this.x2 + 1, y]);
         }
 
-        // Diagonals
         positions.push([this.x - 1, this.y - 1]);
         positions.push([this.x2 + 1, this.y - 1]);
         positions.push([this.x - 1, this.y2 + 1]);
         positions.push([this.x2 + 1, this.y2 + 1]);
 
-        return this._neighbours = positions;
+        this._neighbours = positions;
     }
 
     public isAdjacent(other: Value) {
@@ -227,8 +198,5 @@ class Value {
     }
 }
 
-class NumberElement extends Value {
-}
-
-class SymbolElement extends Value {
-}
+class NumberElement extends Value { }
+class SymbolElement extends Value { }
