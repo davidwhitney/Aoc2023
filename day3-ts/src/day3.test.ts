@@ -3,43 +3,78 @@ import { describe, it, beforeEach, expect, test } from "vitest";
 
 describe('day 3', () => {
 
-//     test('part 1 example', () => {
-//         const input = `
-// 467..114..
-// ...*......
-// ..35..633.
-// ......#...
-// 617*......
-// .....+.58.
-// ..592.....
-// ......755.
-// ...$.*....
-// .664.598..
-// `.trim();
+    test('example', () => {
+        const input = `
+467..114..
+...*......
+..35..633.
+......#...
+617*......
+.....+.58.
+..592.....
+......755.
+...$.*....
+.664.598..
+`.trim();
 
-//         const result = solve(input);
-//         expect(result).toBe(4361);
-//     });
+        const result = solve(input);
+        expect(result).toBe(4361);
 
-
-    it('part 1 solution', () => {
-        const text = fs.readFileSync('./src/day3.input.txt', 'utf-8');        
-
-        const result = solve(text);
-        expect(result).toBe(544664);
+        const result2 = solvePart2(input);
+        expect(result2).toBe(467835);
     });
 
-    //     test('part 1 - test case 1', () => {
-    //         const input = `
-    // 467..114..
-    // ..*.......
-    // `.trim();
 
-    //         const result = solve(input);
-    //     });
+    it('solution', () => {
+        const text = fs.readFileSync('./src/day3.input.txt', 'utf-8');
+
+        const result = solve(text);
+        const ratio = solvePart2(text);
+
+        expect(result).toBe(544664);
+        expect(ratio).toBe(84495585);
+    });
 
 });
 
+function solvePart2(input: string) {
+    const grid = input.split('\n').map(x => x.split(''));
+    const allElements = getTokens(grid);
+
+    const gears = new Map<Value, Array<Value>>();
+    let sum = 0;
+
+    for (const element of allElements) {
+        if (element instanceof NumberElement) {
+            continue;
+        }
+
+        if (element.value !== '*') {
+            continue;
+        }
+
+        const onlyNumbers = allElements.filter(x => x instanceof NumberElement);
+
+        const adjacent = new Array<Value>();
+
+        for (const other of onlyNumbers) {
+            if (element !== other && element.isAdjacent(other)) {
+                adjacent.push(other);
+            }
+        }
+
+        if (adjacent.length === 2) {
+            // it's a gear!
+            gears.set(element, adjacent);
+
+            const gearRatio = parseInt(adjacent[0].value) * parseInt(adjacent[1].value);
+            sum += gearRatio;
+        }
+
+    }
+
+    return sum;
+}
 
 function solve(input: string) {
     const grid = input.split('\n').map(x => x.split(''));
@@ -71,10 +106,7 @@ function solve(input: string) {
         adjacentElements.set(element, adjacent);
     }
 
-    console.log([...adjacentElements.entries()].map(x => ({ id: x[0].value, adj: x[1].map(y => y.value) })));
-
     return sumOfIdsAdjacentToSymbols;
-
 }
 
 function getTokens(grid: string[][]) {
