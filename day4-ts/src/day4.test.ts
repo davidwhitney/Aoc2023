@@ -20,13 +20,13 @@ describe('day 4', () => {
     });
 
 
-    // it('solution', () => {
-    //     const input = fs.readFileSync('./src/input.txt', 'utf-8');
-    //     const [sumOfPoints, totalCards] = solve(input);
+    it('solution', () => {
+        const input = fs.readFileSync('./src/input.txt', 'utf-8');
+        const [sumOfPoints, totalCards] = solve(input);
 
-    //     expect(sumOfPoints).toBe(28538);
-    //     expect(totalCards).toBe(30);
-    // });
+        expect(sumOfPoints).toBe(28538);
+        expect(totalCards).toBe(9425061);
+    });
 
 });
 
@@ -37,7 +37,7 @@ function solve(text: string) {
         const parts = card.split(':');
         const name = parts[0].trim();
         const numberParts = parts[1].trim().split(' | ');
-        const number = parseInt(name.split(' ')[1], 10);
+        const number = parseInt(name.replace("Card", "").trim());
 
         const winningNumbers = toNumbers(numberParts[0]);
         const playerNumbers = toNumbers(numberParts[1]);
@@ -54,28 +54,28 @@ function solve(text: string) {
         return { name, number, winningNumbers, playerNumbers, points, numberOfWins, extraCardIds };
     });
 
-    const allCards = cards.reduce((map, card) => map.set(card.number, card), new Map<number, Card>());
-    const handToScore = [...cards.values()];
-
-    const totalCards = part2ScoreTotalCards(allCards, handToScore.map(x => x.number)); //?   
+    const totalCards = part2ScoreTotalCards(cards); //?   
 
     const sumOfPoints = cards.reduce((sum, card) => sum + card.points, 0);
     return [sumOfPoints, totalCards];
 }
 
-function part2ScoreTotalCards(allCards: Map<number, Card>, cardIds: number[]) {
-    let cardsVisited = 0;
+function part2ScoreTotalCards(cards) {
+    const cardsInstancesCount = cards.map(_ => 1);
 
-    for (const card of cardIds) {
-        cardsVisited++;
-        const currentCard = allCards.get(card);
-        const extras = part2ScoreTotalCards(allCards, currentCard.extraCardIds);
-        cardsVisited += extras;
+    let totalSum = 0;
+
+    for (const card of cards) {
+        const cardId = card.number - 1;
+        totalSum += cardsInstancesCount[cardId];
+
+        for (let index = cardId + 1; index <= cardId + card.numberOfWins && index < cards.length; index++) {
+            cardsInstancesCount[index] += cardsInstancesCount[cardId];
+        }
     }
 
-    return cardsVisited;
+    return totalSum;
 }
-
 
 function toNumbers(parts: string) {
     return parts.split(' ').filter(x => x.trim() !== "").map(part => parseInt(part, 10));
