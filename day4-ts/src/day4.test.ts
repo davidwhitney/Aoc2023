@@ -13,41 +13,74 @@ describe('day 4', () => {
         Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
 `.trim();
 
-        const result = solve(input);
-        expect(result).toBe(13);
+        const [sumOfPoints, totalCards] = solve(input);
+
+        expect(sumOfPoints).toBe(13);
+        expect(totalCards).toBe(30);
     });
 
 
     it('solution', () => {
         const input = fs.readFileSync('./src/input.txt', 'utf-8');
-        const result = solve(input);
-        expect(result).toBe(28538);
+        const [sumOfPoints, totalCards] = solve(input);
+    
+        expect(sumOfPoints).toBe(28538);
+        expect(totalCards).toBe(30);
     });
 
 });
 
-type Card = { name: string, winningNumbers: number[], playerNumbers: number[], points: number };
+type Card = { name: string, number: number, winningNumbers: number[], playerNumbers: number[], points: number, numberOfWins: number };
 
 function solve(text: string) {
     const cards: Card[] = text.split(/\r?\n/).map(card => {
         const parts = card.split(':');
         const name = parts[0].trim();
         const numberParts = parts[1].trim().split(' | ');
-        const cardNumber = parseInt(name.split(' ')[1], 10);  
+        const number = parseInt(name.split(' ')[1], 10);
 
         const winningNumbers = toNumbers(numberParts[0]);
         const playerNumbers = toNumbers(numberParts[1]);
 
-        const totalPlayerCardsInWinningSet = playerNumbers.filter(x => winningNumbers.includes(x)).length;
-        const points = Math.floor(Math.pow(2, totalPlayerCardsInWinningSet - 1));
+        const numberOfWins = playerNumbers.filter(x => winningNumbers.includes(x)).length;
+        const points = Math.floor(Math.pow(2, numberOfWins - 1));
         
-        return { name, winningNumbers, playerNumbers, points };
+        return { name, number, winningNumbers, playerNumbers, points, numberOfWins };
     });
 
-    const sumOfPoints = cards.reduce((sum, card) => sum + card.points, 0);
+    const allCards = cards.reduce((map, card) => map.set(card.number, card), new Map<number, Card>());
+    const handToScore = [...cards.values()];
 
-    return sumOfPoints;
+    const totalCards = part2ScoreTotalCards(allCards, handToScore); //?   
+
+    const sumOfPoints = cards.reduce((sum, card) => sum + card.points, 0);
+    return [sumOfPoints, totalCards];
 }
+
+function part2ScoreTotalCards(allCards, handToScore) {
+    let cardsVisited = 0;
+    let stack = [...handToScore];
+
+    while (stack.length > 0) {
+        cardsVisited++;
+
+        const currentCard = stack.pop();
+        const numberOfWins = currentCard.numberOfWins;
+
+        for (let i = 1; i <= numberOfWins; i++) {
+            const copyId = currentCard.number + i;
+            const copy = allCards.get(copyId);
+            if (copy) {
+                stack.push(copy);
+            }
+        }
+
+        console.log(stack.length);
+    }
+
+    return cardsVisited;
+}
+
 
 function toNumbers(parts: string) {
     return parts.split(' ').filter(x => x.trim() !== "").map(part => parseInt(part, 10));
